@@ -1,8 +1,7 @@
-<<<<<<< HEAD
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
-=======
+.DS_Store
 *v11_seafood_cnty.csv
->>>>>>> 21c61ba2d4ee2678e40b44f8908a88501d88a732
+

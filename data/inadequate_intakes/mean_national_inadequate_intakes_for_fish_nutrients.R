@@ -12,13 +12,11 @@ library(tidyverse)
 library(countrycode)
 
 # Directories
-basedir <- "/Users/cfree/Dropbox/Chris/UCSB/projects/nutrition/fortification"
-outdir <- file.path(basedir, "output")
-gisdir <- file.path(basedir, "data/world/processed")
+gisdir <- "data/world"
 datadir <- "data/inadequate_intakes"
 
 # Read data
-data_orig <- readRDS(file.path(outdir, "fortification_scenario_output_final.Rds"))
+data_orig <- readRDS(file.path(datadir, "fortification_scenario_output_final.Rds"))
 
 # Read world data
 world_lg <- readRDS(file=file.path(gisdir, "world_large.Rds"))
@@ -33,8 +31,8 @@ world_centers <- readRDS(file=file.path(gisdir, "world_centroids.Rds"))
 sort(unique(data_orig$nutrient))
 fish_nutrients <- c("Vitamin A", "Vitamin B12", "Calcium", "Iodine", "Iron", "Zinc", "Selenium")
 
-# Build data
-data <- data_orig %>%
+# Country-nutrient
+data_nutr <- data_orig %>%
   # Reduce to nutrients of interest
   filter(nutrient %in% fish_nutrients) %>% 
   # Calculate stats
@@ -44,7 +42,10 @@ data <- data_orig %>%
   mutate(pdeficient=ndeficient/npeople) %>%
   ungroup() %>% 
   # Eliminate NAs
-  filter(!is.na(pdeficient)) %>% 
+  filter(!is.na(pdeficient)) 
+
+# Nutrient
+data <- data_nutr %>% 
   # Mean inadequate intakes by country
   group_by(iso3, country) %>% 
   summarize(pdeficient=mean(pdeficient)) %>% 
@@ -61,6 +62,7 @@ data_pts <- world_centers %>%
     filter(area_sqkm<=25000 & !is.na(pdeficient))
 
 # Export data
+saveRDS(data_nutr, file=file.path(datadir, "national_inadequate_intakes_of_fish_nutrients_by_nutrient.Rds"))
 saveRDS(data, file=file.path(datadir, "mean_national_inadequate_intakes_of_fish_nutrients.Rds"))
 
 
